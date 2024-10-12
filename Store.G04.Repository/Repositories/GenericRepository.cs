@@ -23,7 +23,7 @@ namespace Store.G04.Repository.Repositories
         {
             if (typeof(TEntity) == typeof(Product))
             {
-                return (IEnumerable<TEntity>) await _context.Products.Include(p => p.Brand).Include(p => p.Type).ToListAsync();
+                return (IEnumerable<TEntity>) await _context.Products.OrderBy(p => p.Name).Include(p => p.Brand).Include(p => p.Type).ToListAsync();
             }
 
             return await _context.Set<TEntity>().ToListAsync();
@@ -66,6 +66,11 @@ namespace Store.G04.Repository.Repositories
         private IQueryable<TEntity> ApplySpecifications(ISpecifications<TEntity, Tkey> spec)
         {
             return SpecificationsEvaluator<TEntity, Tkey>.GetQuery(_context.Set<TEntity>(), spec);
+        }
+
+        public async Task<int> GetCountAsync(ISpecifications<TEntity, Tkey> spec)
+        {
+            return await ApplySpecifications(spec).CountAsync();
         }
     }
 }

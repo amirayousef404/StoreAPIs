@@ -2,6 +2,7 @@
 using Store.G04.Core;
 using Store.G04.Core.Dtos.Products;
 using Store.G04.Core.Entities;
+using Store.G04.Core.Helper;
 using Store.G04.Core.Services.Contract;
 using Store.G04.Core.Specifications;
 using Store.G04.Core.Specifications.Products;
@@ -23,10 +24,17 @@ namespace Store.G04.Service.Services.Products
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
-        public async Task<IEnumerable<ProductDto>> GetAllProductsAsync()
+        public async Task<PaginationResponse<ProductDto>> GetAllProductsAsync(ProductSpecParams productSpec)
         {
-            var spec = new ProductSpecifications();
-            return _mapper.Map<IEnumerable<ProductDto>> (await _unitOfWork.Repository<Product, int>().GetAllWithSpecAsync(spec));
+            var spec = new ProductSpecifications(productSpec);
+            var products = await _unitOfWork.Repository<Product, int>().GetAllWithSpecAsync(spec);
+            var mappedProducts = _mapper.Map<IEnumerable<ProductDto>>(products);
+
+            var countSpec = new ProductWithCountSpecifications(productSpec);
+
+            var count = await _unitOfWork.Repository<Product, int>().GetCountAsync(countSpec);
+
+            return new PaginationResponse<ProductDto>(productSpec.PageSize, productSpec.PageIndex, count, mappedProducts);
         }
 
         public async Task<ProductDto> GetProductByIdAsync(int id)

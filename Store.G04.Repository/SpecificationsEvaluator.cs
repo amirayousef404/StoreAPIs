@@ -21,7 +21,22 @@ namespace Store.G04.Repository
                 query = query.Where(spec.Criteria);
             }
 
-            query.Include(spec.Includes[0]);
+            if (spec.OrderBy is not null)
+            {
+                query = query.OrderBy(spec.OrderBy);
+            }
+
+            if (spec.OrderByDescending is not null)
+            {
+                query = query.OrderByDescending(spec.OrderByDescending);
+            }
+
+            if(spec.IsPaginationEnabled)
+            {
+                query = query.Skip(spec.Skip).Take(spec.Take);
+            }
+
+            //query.Include(spec.Includes[0]);
 
             query =  spec.Includes.Aggregate(query, (currentQuery, includeExpression) => currentQuery.Include(includeExpression));
 

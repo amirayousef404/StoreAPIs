@@ -16,9 +16,38 @@ namespace Store.G04.Core.Specifications.Products
 
         }
 
-        public ProductSpecifications()
+        public ProductSpecifications(ProductSpecParams productSpec) : base(
+            p =>
+            (string.IsNullOrEmpty(productSpec.Search) || p.Name.ToLower().Contains(productSpec.Search))
+            &&
+            (!productSpec.BrandId.HasValue || productSpec.BrandId == p.BrandId)
+            &&
+            (!productSpec.TypeId.HasValue || productSpec.TypeId == p.TypeId)
+            )
         {
+            if(!string.IsNullOrEmpty(productSpec.Sort))
+            {
+                switch (productSpec.Sort)
+                {
+                    case "priceAsc":
+                       AddOrderBy( p => p.Price);
+                        break;
+                    case "priceDesc":
+                        AddOrderByDescending( p => p.Price);
+                        break;
+                    default:
+                        AddOrderBy( p => p.Name);
+                        break;
+                }
+            }
+            else
+            {
+               AddOrderBy( p => p.Name);
+            }
+
             ApplyIncludes();
+
+            ApplyPagination(productSpec.PageSize * (productSpec.PageIndex - 1), productSpec.PageSize);
 
         }
 

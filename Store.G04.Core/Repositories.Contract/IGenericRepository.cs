@@ -18,7 +18,10 @@ namespace Store.G04.Core.Repositories.Contract
 
         Task<TEntity> GetWhithSpecAsync(ISpecifications<TEntity, Tkey> spec);
 
+        Task<int> GetCountAsync(ISpecifications<TEntity, Tkey> spec);
         Task AddAsync(TEntity entity);
+
+
         void UpdateAsync(TEntity entity);
 
         void DeleteAsync(TEntity entity);
